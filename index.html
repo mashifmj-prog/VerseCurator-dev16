@@ -1,0 +1,102 @@
+// Enhanced navigation system
+function setupNavigation() {
+    // Navigation links
+    const navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const viewName = this.getAttribute('data-view');
+            switchView(viewName);
+        });
+    });
+    
+    // Study tabs functionality
+    const studyTabs = document.querySelectorAll('.study-tab');
+    studyTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            switchStudyTab(tabName);
+        });
+    });
+}
+
+// Study tab switching
+function switchStudyTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.study-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    const targetTab = document.getElementById(`${tabName}-tab`);
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
+    
+    // Activate selected tab
+    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+    
+    showNotification(`Switched to ${tabName.replace('-', ' ')}`, 'info');
+}
+
+// Button functionality
+function setupButtons() {
+    // Quick Study button
+    document.getElementById('quickStudyBtn')?.addEventListener('click', () => {
+        showNotification('🎓 Opening quick study tools...', 'info');
+        switchView('study');
+    });
+    
+    // Group Study button
+    document.getElementById('groupStudyBtn')?.addEventListener('click', () => {
+        showNotification('👥 Opening group study features...', 'info');
+        switchView('collaboration');
+    });
+    
+    // Explore Tools button
+    document.getElementById('exploreToolsBtn')?.addEventListener('click', () => {
+        showNotification('🔍 Opening advanced study tools...', 'info');
+        switchView('study');
+    });
+    
+    // Join Group buttons
+    document.querySelectorAll('.study-group-card .btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const groupName = this.closest('.study-group-card').querySelector('h4').textContent;
+            showNotification(`👥 Joining ${groupName}...`, 'success');
+        });
+    });
+}
+
+// Initialize everything
+function initPhase34() {
+    setupNavigation();
+    setupButtons();
+    
+    // Set first study tab as active by default
+    const firstTab = document.querySelector('.study-tab');
+    if (firstTab) {
+        firstTab.classList.add('active');
+    }
+    
+    showNotification('📚 Study & Collaboration Tools Ready!', 'success');
+}
+
+// Add to your existing initApp function
+function initApp() {
+    // Your existing initialization code
+    initTheme();
+    initAuth();
+    attachEventListeners();
+    
+    // Add Phase 3.4 initialization
+    initPhase34();
+}
