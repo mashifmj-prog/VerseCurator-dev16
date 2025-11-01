@@ -1,102 +1,1394 @@
-// Enhanced navigation system
-function setupNavigation() {
-    // Navigation links
-    const navLinks = document.querySelectorAll('.nav-links a');
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const viewName = this.getAttribute('data-view');
-            switchView(viewName);
-        });
-    });
-    
-    // Study tabs functionality
-    const studyTabs = document.querySelectorAll('.study-tab');
-    studyTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const tabName = this.getAttribute('data-tab');
-            switchStudyTab(tabName);
-        });
-    });
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerseCurator - Advanced Study & Collaboration</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-// Study tab switching
-function switchStudyTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    // Remove active class from all tabs
-    document.querySelectorAll('.study-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Show selected tab content
-    const targetTab = document.getElementById(`${tabName}-tab`);
-    if (targetTab) {
-        targetTab.classList.add('active');
-    }
-    
-    // Activate selected tab
-    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
-    if (activeTab) {
-        activeTab.classList.add('active');
-    }
-    
-    showNotification(`Switched to ${tabName.replace('-', ' ')}`, 'info');
-}
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #ff6b6b;
+            --ai-color: #8a2be2;
+            --immersion-color: #00b894;
+            --study-color: #3498db;
+            --collaboration-color: #9b59b6;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --text-light: #777777;
+            --border-radius: 8px;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
 
-// Button functionality
-function setupButtons() {
-    // Quick Study button
-    document.getElementById('quickStudyBtn')?.addEventListener('click', () => {
-        showNotification('🎓 Opening quick study tools...', 'info');
-        switchView('study');
-    });
-    
-    // Group Study button
-    document.getElementById('groupStudyBtn')?.addEventListener('click', () => {
-        showNotification('👥 Opening group study features...', 'info');
-        switchView('collaboration');
-    });
-    
-    // Explore Tools button
-    document.getElementById('exploreToolsBtn')?.addEventListener('click', () => {
-        showNotification('🔍 Opening advanced study tools...', 'info');
-        switchView('study');
-    });
-    
-    // Join Group buttons
-    document.querySelectorAll('.study-group-card .btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const groupName = this.closest('.study-group-card').querySelector('h4').textContent;
-            showNotification(`👥 Joining ${groupName}...`, 'success');
-        });
-    });
-}
+        .dark-theme {
+            --primary-color: #5a7bb5;
+            --secondary-color: #7b9ccc;
+            --accent-color: #ff7b7b;
+            --ai-color: #9b4dff;
+            --immersion-color: #00d8a4;
+            --study-color: #5dade2;
+            --collaboration-color: #bb8fce;
+            --background-color: #1a1a2e;
+            --card-color: #16213e;
+            --text-color: #e6e6e6;
+            --text-light: #a0a0a0;
+        }
 
-// Initialize everything
-function initPhase34() {
-    setupNavigation();
-    setupButtons();
-    
-    // Set first study tab as active by default
-    const firstTab = document.querySelector('.study-tab');
-    if (firstTab) {
-        firstTab.classList.add('active');
-    }
-    
-    showNotification('📚 Study & Collaboration Tools Ready!', 'success');
-}
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            line-height: 1.6;
+        }
 
-// Add to your existing initApp function
-function initApp() {
-    // Your existing initialization code
-    initTheme();
-    initAuth();
-    attachEventListeners();
-    
-    // Add Phase 3.4 initialization
-    initPhase34();
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--secondary-color);
+            margin-bottom: 20px;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-study {
+            background-color: var(--study-color);
+            color: white;
+        }
+
+        .btn-collaboration {
+            background-color: var(--collaboration-color);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content Grid */
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            min-height: 600px;
+        }
+
+        .sidebar, .right-sidebar {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 20px;
+            align-self: start;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* View Management */
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Styles */
+        .post-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-info {
+            flex-grow: 1;
+        }
+
+        .username {
+            font-weight: bold;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .verse-text {
+            font-style: italic;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(74, 111, 165, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+        }
+
+        .action-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--primary-color);
+        }
+
+        /* Section Titles */
+        .section-title {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.1rem;
+        }
+
+        /* AI Recommendation Card */
+        .ai-recommendation-card {
+            background: linear-gradient(135deg, var(--ai-color), var(--primary-color));
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .ml-prediction {
+            background: linear-gradient(135deg, var(--ai-color), #4a6fa5);
+            color: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 10px 0;
+        }
+
+        /* Study Tools Styles */
+        .study-tools-panel {
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--study-color);
+        }
+
+        .study-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--study-color);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .study-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .study-tab.active {
+            border-bottom-color: var(--study-color);
+            color: var(--study-color);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .translation-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .translation-card {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            border: 1px solid var(--study-color);
+        }
+
+        .translation-name {
+            font-weight: bold;
+            color: var(--study-color);
+            margin-bottom: 8px;
+        }
+
+        .word-study-panel {
+            background: linear-gradient(135deg, var(--study-color), #2980b9);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .cross-reference-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+
+        .cross-reference-item {
+            padding: 8px 12px;
+            border-left: 3px solid var(--study-color);
+            margin-bottom: 5px;
+            background: rgba(52, 152, 219, 0.05);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .cross-reference-item:hover {
+            background: rgba(52, 152, 219, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* Collaboration Styles */
+        .collaboration-panel {
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--collaboration-color);
+        }
+
+        .study-group-card {
+            background: rgba(155, 89, 182, 0.1);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid var(--collaboration-color);
+        }
+
+        .group-members {
+            display: flex;
+            margin: 10px 0;
+        }
+
+        .member-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--collaboration-color);
+            margin-right: -8px;
+            border: 2px solid var(--card-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .shared-notes {
+            background: rgba(155, 89, 182, 0.05);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 3px solid var(--collaboration-color);
+        }
+
+        .note-author {
+            font-weight: bold;
+            color: var(--collaboration-color);
+            margin-bottom: 5px;
+        }
+
+        .reading-plan-progress {
+            background: linear-gradient(135deg, var(--collaboration-color), #8e44ad);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .analytics-card {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .analytics-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .analytics-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Knowledge Sharing */
+        .knowledge-panel {
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .resource-card {
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .resource-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .discussion-thread {
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .discussion-message {
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: var(--border-radius);
+            border-left: 3px solid var(--study-color);
+        }
+
+        /* Advanced Search */
+        .advanced-search {
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .search-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.success {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .notification.error {
+            border-left: 4px solid #f44336;
+        }
+
+        .notification.info {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 250px 1fr;
+            }
+            
+            .right-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .sidebar, .right-sidebar {
+                position: static;
+                max-height: none;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .study-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .study-tab {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
+            
+            .translation-comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .resource-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .post-actions {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .action-btn {
+                flex: 1;
+                min-width: 80px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">VerseCurator Study</div>
+            <nav class="nav-links">
+                <a href="#" class="active" data-view="home">Home</a>
+                <a href="#" data-view="study">Study Tools</a>
+                <a href="#" data-view="collaboration">Collaboration</a>
+                <a href="#" data-view="knowledge">Knowledge</a>
+                <a href="#" data-view="multimedia">Multimedia</a>
+                <a href="#" data-view="immersion">Immersion</a>
+                <a href="#" data-view="profile">Profile</a>
+            </nav>
+            <div class="user-actions">
+                <button class="btn btn-study" id="quickStudyBtn">📖 Quick Study</button>
+                <button class="btn btn-collaboration" id="groupStudyBtn">👥 Group Study</button>
+                <button class="btn btn-primary" id="themeToggle">🌙</button>
+                <button class="btn btn-outline" id="loginBtn">Login</button>
+            </div>
+        </header>
+
+        <!-- HOME VIEW -->
+        <section id="home-view" class="view-section active">
+            <div class="main-content">
+                <aside class="sidebar">
+                    <h3 class="section-title">Study Dashboard</h3>
+                    <div class="user-info-card">
+                        <div class="user-avatar">JD</div>
+                        <div class="username">John Doe</div>
+                        <div class="user-stats">
+                            <div>Studies: <span id="studyCount">24</span></div>
+                            <div>Groups: <span id="groupCount">3</span></div>
+                            <div>Notes: <span id="noteCount">47</span></div>
+                        </div>
+                        
+                        <button class="btn btn-study" id="startStudyBtn" style="width: 100%; margin-top: 15px;">
+                            Start New Study
+                        </button>
+                        <button class="btn btn-outline" id="joinGroupBtn" style="width: 100%; margin-top: 10px;">
+                            Join Study Group
+                        </button>
+                    </div>
+
+                    <h3 class="section-title" style="margin-top: 20px;">Active Studies</h3>
+                    <div class="study-list">
+                        <div class="study-item" style="padding: 10px; border-left: 3px solid var(--study-color); margin-bottom: 10px;">
+                            <div style="font-weight: bold;">Romans 8 Deep Dive</div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);">Progress: 65%</div>
+                        </div>
+                        <div class="study-item" style="padding: 10px; border-left: 3px solid var(--study-color); margin-bottom: 10px;">
+                            <div style="font-weight: bold;">Psalms of Comfort</div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);">Progress: 42%</div>
+                        </div>
+                    </div>
+                </aside>
+
+                <main class="feed">
+                    <!-- Study Tools Quick Access -->
+                    <div class="ai-recommendation-card" style="background: linear-gradient(135deg, var(--study-color), var(--primary-color));">
+                        <div class="ai-badge">Study Assistant</div>
+                        <h3>🎓 Advanced Study Tools</h3>
+                        <p>Access original languages, commentaries, and cross-references for deeper understanding</p>
+                        <div class="ml-prediction">
+                            <strong>Recommended:</strong> Study the Greek word for "love" in John 3:16
+                        </div>
+                        <button class="btn btn-outline" id="exploreToolsBtn" style="background: white; color: var(--study-color); margin-top: 10px;">
+                            Explore Study Tools
+                        </button>
+                    </div>
+
+                    <!-- Verse with Study Features -->
+                    <div class="post-card">
+                        <div class="post-header">
+                            <div class="user-avatar">JD</div>
+                            <div class="user-info">
+                                <div class="username">John Doe</div>
+                                <div class="post-time">2 hours ago • 📖 Study Session</div>
+                            </div>
+                            <button class="btn btn-outline follow-btn" data-user="1">Following</button>
+                        </div>
+                        <div class="post-content">
+                            <div class="verse-text">
+                                "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." - John 3:16
+                            </div>
+                            
+                            <!-- Study Tools Integration -->
+                            <div class="study-tools-panel">
+                                <h4>🔍 Study Tools</h4>
+                                <div class="study-tabs">
+                                    <div class="study-tab active" data-tab="translations">Translations</div>
+                                    <div class="study-tab" data-tab="word-study">Word Study</div>
+                                    <div class="study-tab" data-tab="cross-references">Cross References</div>
+                                    <div class="study-tab" data-tab="commentary">Commentary</div>
+                                </div>
+                                
+                                <div class="tab-content active" id="translations-tab">
+                                    <div class="translation-comparison">
+                                        <div class="translation-card">
+                                            <div class="translation-name">NIV</div>
+                                            <div>"For God so loved the world that he gave his one and only Son..."</div>
+                                        </div>
+                                        <div class="translation-card">
+                                            <div class="translation-name">ESV</div>
+                                            <div>"For God so loved the world, that he gave his only Son..."</div>
+                                        </div>
+                                        <div class="translation-card">
+                                            <div class="translation-name">KJV</div>
+                                            <div>"For God so loved the world, that he gave his only begotten Son..."</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="tab-content" id="word-study-tab">
+                                    <div class="word-study-panel">
+                                        <h4>Greek Word Study</h4>
+                                        <div class="original-language">
+                                            Ἀγάπη (Agapē) <span class="strongs-number">G26</span>
+                                        </div>
+                                        <p><strong>Definition:</strong> Unconditional love, charity, divine love</p>
+                                        <p><strong>Usage:</strong> 116 times in NT, describes God's love for humanity</p>
+                                        <button class="btn btn-outline" style="background: white; color: var(--study-color); margin-top: 10px;">
+                                            Full Word Study
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="tab-content" id="cross-references-tab">
+                                    <h4>Related Scriptures</h4>
+                                    <div class="cross-reference-list">
+                                        <div class="cross-reference-item">Romans 5:8 - "But God demonstrates his own love for us..."</div>
+                                        <div class="cross-reference-item">1 John 4:9 - "This is how God showed his love among us..."</div>
+                                        <div class="cross-reference-item">Ephesians 2:4-5 - "But because of his great love for us..."</div>
+                                        <div class="cross-reference-item">John 15:13 - "Greater love has no one than this..."</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="tab-content" id="commentary-tab">
+                                    <h4>Commentary Insights</h4>
+                                    <div class="commentary-item" style="padding: 10px; background: rgba(52, 152, 219, 0.05); border-radius: var(--border-radius); margin: 10px 0;">
+                                        <strong>Matthew Henry:</strong> "Here is the gospel in a nutshell... God's love is the fountain, Christ's death the channel, and faith the means of our receiving eternal life."
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <p>Studying this verse today revealed the depth of God's unconditional love for us.</p>
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn" data-post="1">
+                                <span>❤️</span> <span class="like-count">24</span>
+                            </button>
+                            <button class="action-btn comment-btn" data-post="1">
+                                <span>💬</span> <span class="comment-count">8</span>
+                            </button>
+                            <button class="action-btn study-btn" data-post="1">
+                                <span>📖</span> <span>Study</span>
+                            </button>
+                            <button class="action-btn share-btn" data-post="1">
+                                <span>🔄</span> <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
+                </main>
+
+                <aside class="right-sidebar">
+                    <h3 class="section-title">Study Groups</h3>
+                    <div class="study-group-card">
+                        <h4>Romans Study Group</h4>
+                        <p>Deep dive into Paul's letter to the Romans</p>
+                        <div class="group-members">
+                            <div class="member-avatar">JD</div>
+                            <div class="member-avatar">SJ</div>
+                            <div class="member-avatar">MJ</div>
+                            <div class="member-avatar" style="background: var(--text-light);">+5</div>
+                        </div>
+                        <div class="progress-stats">
+                            <span>Progress: 65%</span>
+                            <span>Next: Rom 8:28</span>
+                        </div>
+                        <button class="btn btn-collaboration join-group-btn" style="width: 100%; margin-top: 10px;">Join Discussion</button>
+                    </div>
+
+                    <h3 class="section-title" style="margin-top: 20px;">Shared Notes</h3>
+                    <div class="shared-notes">
+                        <div class="note-author">Sarah Johnson</div>
+                        <div style="font-size: 0.9rem;">Great insight on John 3:16 from today's study. The Greek word "agape" really emphasizes the unconditional nature of God's love.</div>
+                        <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">2 hours ago</div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <!-- STUDY TOOLS VIEW -->
+        <section id="study-view" class="view-section">
+            <div class="verse-section">
+                <h2>📚 Advanced Study Tools</h2>
+                <p>Deepen your understanding with original languages, commentaries, and study resources</p>
+                
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="analytics-value">8</div>
+                        <div class="analytics-label">Translations</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value">12K+</div>
+                        <div class="analytics-label">Word Studies</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value">47</div>
+                        <div class="analytics-label">Commentaries</div>
+                    </div>
+                </div>
+
+                <div class="advanced-search">
+                    <h3>🔍 Advanced Bible Search</h3>
+                    <input type="text" class="form-control" placeholder="Search scriptures, keywords, or topics..." style="margin-bottom: 15px;">
+                    <div class="search-filters">
+                        <select class="form-control">
+                            <option>All Translations</option>
+                            <option>NIV</option>
+                            <option>ESV</option>
+                            <option>KJV</option>
+                        </select>
+                        <select class="form-control">
+                            <option>All Books</option>
+                            <option>Old Testament</option>
+                            <option>New Testament</option>
+                        </select>
+                        <select class="form-control">
+                            <option>Any Topic</option>
+                            <option>Love</option>
+                            <option>Faith</option>
+                            <option>Hope</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-study" id="searchScripturesBtn" style="width: 100%;">Search Scriptures</button>
+                </div>
+
+                <div class="intelligence-panel">
+                    <h3>Featured Study Resources</h3>
+                    <div class="resource-grid">
+                        <div class="resource-card" data-resource="lexicon">
+                            <div class="resource-icon">📖</div>
+                            <div>Greek Lexicon</div>
+                        </div>
+                        <div class="resource-card" data-resource="cross-refs">
+                            <div class="resource-icon">🔍</div>
+                            <div>Cross References</div>
+                        </div>
+                        <div class="resource-card" data-resource="commentaries">
+                            <div class="resource-icon">📚</div>
+                            <div>Commentaries</div>
+                        </div>
+                        <div class="resource-card" data-resource="atlas">
+                            <div class="resource-icon">🗺️</div>
+                            <div>Bible Atlas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COLLABORATION VIEW -->
+        <section id="collaboration-view" class="view-section">
+            <div class="verse-section">
+                <h2>👥 Collaborative Study</h2>
+                <p>Study together with groups, shared notes, and collective insights</p>
+                
+                <div class="collaboration-panel">
+                    <h3>Active Study Groups</h3>
+                    <div class="study-group-card">
+                        <h4>🔍 Gospel of John Deep Dive</h4>
+                        <p>Exploring the theological depth of John's gospel</p>
+                        <div class="progress-stats">
+                            <span>Members: 12</span>
+                            <span>Active: 8</span>
+                        </div>
+                        <button class="btn btn-collaboration join-group-btn" style="width: 100%; margin-top: 10px;">Join Group</button>
+                    </div>
+                    
+                    <div class="study-group-card">
+                        <h4>💭 Psalms Meditation Group</h4>
+                        <p>Daily meditation and discussion on the Psalms</p>
+                        <div class="progress-stats">
+                            <span>Members: 24</span>
+                            <span>Active: 18</span>
+                        </div>
+                        <button class="btn btn-collaboration join-group-btn" style="width: 100%; margin-top: 10px;">Join Group</button>
+                    </div>
+                </div>
+
+                <div class="reading-plan-progress">
+                    <h3>Group Reading Plan: Romans</h3>
+                    <div class="learning-progress">
+                        <div class="learning-progress-bar" style="width: 65%; background: white;"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span>65% Complete</span>
+                        <span>Next: Chapter 9</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-study" id="createGroupBtn">Create Study Group</button>
+                    <button class="btn btn-outline" id="inviteFriendsBtn">Invite Friends</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- KNOWLEDGE VIEW -->
+        <section id="knowledge-view" class="view-section">
+            <div class="verse-section">
+                <h2>📋 Knowledge Sharing</h2>
+                <p>Share insights, resources, and teachings with the community</p>
+                
+                <div class="knowledge-panel">
+                    <h3>📊 Teaching Resources</h3>
+                    <div class="resource-grid">
+                        <div class="resource-card" data-resource="sermon-notes">
+                            <div class="resource-icon">🎤</div>
+                            <div>Sermon Notes</div>
+                        </div>
+                        <div class="resource-card" data-resource="study-guides">
+                            <div class="resource-icon">📝</div>
+                            <div>Study Guides</div>
+                        </div>
+                        <div class="resource-card" data-resource="presentations">
+                            <div class="resource-icon">📊</div>
+                            <div>Presentation Slides</div>
+                        </div>
+                        <div class="resource-card" data-resource="lesson-plans">
+                            <div class="resource-icon">📚</div>
+                            <div>Lesson Plans</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="discussion-thread">
+                    <h3>💬 Study Group Discussions</h3>
+                    <div class="discussion-message">
+                        <strong>Michael Jordan:</strong> Has anyone studied the connection between John 3:16 and Romans 5:8? The parallel in God's demonstration of love is striking.
+                    </div>
+                    <div class="discussion-message" style="margin-left: 20px;">
+                        <strong>Sarah Johnson:</strong> Yes! Both emphasize God's initiative in love. In John it's giving His Son, in Romans it's Christ dying for us while we were sinners.
+                    </div>
+                    <div class="discussion-message">
+                        <strong>You:</strong> <input type="text" class="form-control" placeholder="Add to the discussion..." style="margin-top: 10px;">
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-study" id="shareResourceBtn">Share Resource</button>
+                    <button class="btn btn-outline" id="browseLibraryBtn">Browse Library</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SIMPLIFIED OTHER VIEWS FOR DEMO -->
+        <section id="multimedia-view" class="view-section">
+            <div class="post-card">
+                <h2>🎵 Multimedia Features</h2>
+                <p>Audio, video, and immersive experiences (Phase 3.3)</p>
+            </div>
+        </section>
+
+        <section id="immersion-view" class="view-section">
+            <div class="post-card">
+                <h2>🌊 Immersive Experiences</h2>
+                <p>Focus mode and meditation features (Phase 3.3)</p>
+            </div>
+        </section>
+
+        <section id="profile-view" class="view-section">
+            <div class="post-card">
+                <h2>👤 User Profile</h2>
+                <p>Your personal dashboard and settings</p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Login to VerseCurator</h3>
+                <button class="close-btn" id="closeLoginModal">&times;</button>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div class="notification" id="notification">
+        <span id="notificationMessage"></span>
+    </div>
+
+    <script>
+        // Application State
+        const appState = {
+            currentUser: null,
+            isLoggedIn: false,
+            currentTheme: 'light',
+            currentView: 'home'
+        };
+
+        // Utility Functions
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            if (notification && messageEl) {
+                messageEl.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.style.display = 'flex';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+            }
+        }
+
+        // Navigation Management
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Show target view
+            const targetView = document.getElementById(`${viewName}-view`);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+            
+            // Update nav links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-view') === viewName) {
+                    link.classList.add('active');
+                }
+            });
+            
+            appState.currentView = viewName;
+            showNotification(`Switched to ${viewName} view`, 'info');
+        }
+
+        // Study Tabs Management
+        function setupStudyTabs() {
+            const studyTabs = document.querySelectorAll('.study-tab');
+            studyTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchStudyTab(tabName);
+                });
+            });
+        }
+
+        function switchStudyTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.study-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const targetTab = document.getElementById(`${tabName}-tab`);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+            
+            // Activate selected tab
+            const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+        }
+
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('verseCuratorTheme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        function setTheme(theme) {
+            appState.currentTheme = theme;
+            document.body.className = theme === 'dark' ? 'dark-theme' : '';
+            localStorage.setItem('verseCuratorTheme', theme);
+            
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            const newTheme = appState.currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+            showNotification(`Theme changed to ${newTheme} mode`, 'info');
+        }
+
+        // Authentication
+        function initAuth() {
+            const savedUser = localStorage.getItem('verseCuratorUser');
+            if (savedUser) {
+                appState.currentUser = JSON.parse(savedUser);
+                appState.isLoggedIn = true;
+                updateAuthUI();
+            }
+        }
+
+        function updateAuthUI() {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                if (appState.isLoggedIn) {
+                    loginBtn.textContent = 'Logout';
+                } else {
+                    loginBtn.textContent = 'Login';
+                }
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            appState.isLoggedIn = true;
+            appState.currentUser = { name: 'Test User' };
+            localStorage.setItem('verseCuratorUser', JSON.stringify(appState.currentUser));
+            updateAuthUI();
+            toggleModal('loginModal');
+            showNotification('Login successful!', 'success');
+        }
+
+        function handleLogout() {
+            appState.isLoggedIn = false;
+            appState.currentUser = null;
+            localStorage.removeItem('verseCuratorUser');
+            updateAuthUI();
+            showNotification('Logged out successfully', 'info');
+        }
+
+        // Event Listeners
+        function attachEventListeners() {
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Navigation
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const view = this.getAttribute('data-view');
+                    switchView(view);
+                });
+            });
+
+            // Auth buttons
+            document.getElementById('loginBtn').addEventListener('click', function() {
+                if (appState.isLoggedIn) {
+                    handleLogout();
+                } else {
+                    toggleModal('loginModal');
+                }
+            });
+
+            // Modal close buttons
+            document.getElementById('closeLoginModal').addEventListener('click', function() {
+                toggleModal('loginModal');
+            });
+
+            // Form submissions
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // Study Tools buttons
+            document.getElementById('quickStudyBtn').addEventListener('click', function() {
+                showNotification('📖 Opening quick study tools...', 'info');
+            });
+
+            document.getElementById('groupStudyBtn').addEventListener('click', function() {
+                showNotification('👥 Opening group study features...', 'info');
+                switchView('collaboration');
+            });
+
+            document.getElementById('exploreToolsBtn').addEventListener('click', function() {
+                showNotification('🔍 Opening advanced study tools...', 'info');
+                switchView('study');
+            });
+
+            document.getElementById('startStudyBtn').addEventListener('click', function() {
+                showNotification('🎓 Starting new study session...', 'info');
+            });
+
+            document.getElementById('joinGroupBtn').addEventListener('click', function() {
+                showNotification('👥 Browsing study groups...', 'info');
+                switchView('collaboration');
+            });
+
+            // Join group buttons
+            document.querySelectorAll('.join-group-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const groupName = this.closest('.study-group-card').querySelector('h4').textContent;
+                    showNotification(`👥 Joining ${groupName}...`, 'success');
+                });
+            });
+
+            // Resource cards
+            document.querySelectorAll('.resource-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const resourceName = this.textContent.trim();
+                    showNotification(`Opening ${resourceName}...`, 'info');
+                });
+            });
+
+            // Action buttons
+            document.getElementById('createGroupBtn').addEventListener('click', function() {
+                showNotification('Creating new study group...', 'info');
+            });
+
+            document.getElementById('inviteFriendsBtn').addEventListener('click', function() {
+                showNotification('Inviting friends to study...', 'info');
+            });
+
+            document.getElementById('shareResourceBtn').addEventListener('click', function() {
+                showNotification('Sharing teaching resource...', 'info');
+            });
+
+            document.getElementById('browseLibraryBtn').addEventListener('click', function() {
+                showNotification('Browsing resource library...', 'info');
+            });
+
+            document.getElementById('searchScripturesBtn').addEventListener('click', function() {
+                showNotification('Searching scriptures...', 'info');
+            });
+
+            // Cross reference items
+            document.querySelectorAll('.cross-reference-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const verse = this.textContent.split(' - ')[0];
+                    showNotification(`Opening ${verse}...`, 'info');
+                });
+            });
+
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    toggleModal(e.target.id);
+                }
+            });
+        }
+
+        // Initialize App
+        function initApp() {
+            initTheme();
+            initAuth();
+            setupStudyTabs();
+            attachEventListeners();
+            
+            showNotification('VerseCurator Phase 3.4 - Study & Collaboration Ready!', 'success');
+            
+            console.log('✅ Phase 3.4 Features Active');
+            console.log('✅ Advanced Study Tools');
+            console.log('✅ Collaborative Features');
+            console.log('✅ Knowledge Sharing');
+            console.log('✅ Responsive Design');
+        }
+
+        // Start the application
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
